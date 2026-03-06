@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_fenixtrace_connector" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.fenixtrace.connector</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="FenixTrace" name="fenixtrace_settings">
+                    <block title="FenixTrace Integration">
+                        <setting string="Upload Directory" company_dependent="False">
+                            <field name="fenixtrace_upload_directory" placeholder="/opt/fenixtrace/uploads"/>
+                        </setting>
+                        <setting string="Integration Kit URL" company_dependent="False">
+                            <field name="fenixtrace_integration_kit_url" placeholder="http://localhost:3005"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

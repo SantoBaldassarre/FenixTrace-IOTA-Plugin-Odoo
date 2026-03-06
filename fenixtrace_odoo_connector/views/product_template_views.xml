@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view_fenixtrace_connector" model="ir.ui.view">
+        <field name="name">product.template.form.view.fenixtrace.connector</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button
+                    name="action_send_to_fenixtrace"
+                    type="object"
+                    string="Send to FenixTrace"
+                    class="oe_highlight"
+                />
+            </xpath>
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="FenixTrace">
+                    <group>
+                        <field name="fenixtrace_state" readonly="1"/>
+                        <field name="fenixtrace_last_sync_at" readonly="1"/>
+                        <field name="fenixtrace_tx_hash" readonly="1"/>
+                        <field name="fenixtrace_notarization_tx_hash" readonly="1"/>
+                        <field name="fenixtrace_last_file_name" readonly="1"/>
+                        <field name="fenixtrace_last_error" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
