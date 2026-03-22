@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view_fenixtrace_connector" model="ir.ui.view">
+        <field name="name">product.template.form.view.fenixtrace.connector</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button
+                    name="action_send_to_fenixtrace"
+                    type="object"
+                    string="Send to FenixTrace"
+                    class="oe_highlight"
+                    invisible="fenixtrace_state == 'synced'"
+                />
+                <button
+                    name="action_retry_fenixtrace"
+                    type="object"
+                    string="Retry FenixTrace"
+                    class="btn-warning"
+                    invisible="fenixtrace_state != 'error'"
+                />
+            </xpath>
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="FenixTrace" name="fenixtrace_tab">
+                    <group string="Sync Status">
+                        <group>
+                            <field name="fenixtrace_state" readonly="1" widget="badge"
+                                   decoration-success="fenixtrace_state == 'synced'"
+                                   decoration-warning="fenixtrace_state == 'queued'"
+                                   decoration-danger="fenixtrace_state == 'error'"
+                                   decoration-muted="fenixtrace_state == 'draft'"/>
+                            <field name="fenixtrace_last_sync_at" readonly="1"/>
+                            <field name="fenixtrace_last_file_name" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="fenixtrace_tx_hash" readonly="1" widget="CopyClipboardChar"/>
+                            <field name="fenixtrace_notarization_tx_hash" readonly="1" widget="CopyClipboardChar"/>
+                        </group>
+                    </group>
+                    <group string="Error Details" invisible="fenixtrace_state != 'error'">
+                        <field name="fenixtrace_last_error" readonly="1" nolabel="1" colspan="2"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

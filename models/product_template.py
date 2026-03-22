@@ -137,6 +137,25 @@ class ProductTemplate(models.Model):
             }
         }
 
+    def action_retry_fenixtrace(self):
+        """Retry syncing a product that previously failed."""
+        self.ensure_one()
+        self.write({
+            'fenixtrace_state': 'draft',
+            'fenixtrace_last_error': False
+        })
+        return self.action_send_to_fenixtrace()
+
+    def _cron_auto_sync_products(self):
+        """Called by scheduled action to auto-sync draft products."""
+        products = self.search([
+            ('fenixtrace_state', 'in', ['draft', 'error']),
+            ('active', '=', True),
+        ], limit=50)
+        if not products:
+            return
+        products.action_send_to_fenixtrace_batch()
+
     def action_send_to_fenixtrace_batch(self):
         success_count = 0
         error_count = 0
