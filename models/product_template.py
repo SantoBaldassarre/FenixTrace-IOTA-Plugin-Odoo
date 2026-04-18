@@ -3,10 +3,27 @@ import os
 import re
 from datetime import datetime
 from urllib import error as urllib_error
+from urllib import parse as urllib_parse
 from urllib import request as urllib_request
 
 from odoo import _, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
+
+
+def _validate_integration_kit_url(raw_url):
+    """Ensure the Integration Kit URL is an http(s) URL with a host.
+
+    Returning the stripped URL when safe, raising UserError otherwise.
+    This blocks file://, gopher://, and other non-HTTP schemes that the
+    Python urllib stack would otherwise follow happily.
+    """
+    candidate = (raw_url or '').strip()
+    if not candidate:
+        raise UserError(_('Set FenixTrace Integration Kit URL in Settings before sending products.'))
+    parsed = urllib_parse.urlparse(candidate)
+    if parsed.scheme not in ('http', 'https') or not parsed.netloc:
+        raise UserError(_('FenixTrace Integration Kit URL must be an http(s) URL'))
+    return candidate
 
 
 class ProductTemplate(models.Model):
@@ -97,8 +114,7 @@ class ProductTemplate(models.Model):
             raise UserError(_('Upload directory does not exist: %s') % upload_dir)
         if not os.access(upload_dir, os.W_OK):
             raise UserError(_('Upload directory is not writable: %s') % upload_dir)
-        if not integration_kit_url:
-            raise UserError(_('Set FenixTrace Integration Kit URL in Settings before sending products.'))
+        integration_kit_url = _validate_integration_kit_url(integration_kit_url)
 
         payload = self._build_fenixtrace_payload()
         file_name = self._generate_fenixtrace_filename()
@@ -123,8 +139,15 @@ class ProductTemplate(models.Model):
         })
         return result_data
 
+    def _check_fenixtrace_permissions(self):
+        """Only allow users who can edit products to trigger FenixTrace sync."""
+        if not self.env.user.has_group('product.group_product_manager') and \
+                not self.env.user.has_group('base.group_system'):
+            raise AccessError(_('Only product managers can sync products to FenixTrace.'))
+
     def action_send_to_fenixtrace(self):
         self.ensure_one()
+        self._check_fenixtrace_permissions()
         self._send_to_fenixtrace()
         return {
             'type': 'ir.actions.client',
